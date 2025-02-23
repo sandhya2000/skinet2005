@@ -9,6 +9,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu'
 import { MatListOption, MatSelectionList, MatSelectionListChange } from '@angular/material/list';
 import { ShopParams} from '../../shared/models/shopParms';
+import { MatPaginator, PageEvent } from '@angular/material/paginator'
+import { Pagination } from '../../shared/models/pagination';
 
 @Component({
   selector: 'app-shop',
@@ -20,7 +22,8 @@ import { ShopParams} from '../../shared/models/shopParms';
     MatMenu,
     MatSelectionList,
     MatListOption,
-    MatMenuTrigger
+    MatMenuTrigger,
+    MatPaginator
 ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
@@ -29,7 +32,7 @@ export class ShopComponent implements OnInit {
   private shopService=inject(ShopService);
   private dialogService=inject(MatDialog)
   
-  products: Product[] =[];
+  products?: Pagination<Product>;
   
   sortOptions= [
     {name: 'Alphabetical', value: 'name'},
@@ -38,6 +41,7 @@ export class ShopComponent implements OnInit {
   ]
 
   shopParms= new ShopParams();
+  pageSizeOptions =[5, 10, 15, 20]
 
   ngOnInit(): void {
     this.initializeShop();
@@ -51,17 +55,23 @@ export class ShopComponent implements OnInit {
 
   getProducts(){
     this.shopService.getProducts(this.shopParms).subscribe({
-      next: response=>this.products=response.data,
+      next: response=>this.products=response,
       error: error=>console.log(error),
       
     });
   } 
 
+  handlePageEvent(event: PageEvent){
+    this.shopParms.pageNumber=event.pageIndex +1;
+    this.shopParms.pageSize=event.pageSize;
+    this.getProducts();
+  }
   onSortChange(event: MatSelectionListChange){
      const selectedOption= event.options[0];
      if(selectedOption)
      {
       this.shopParms.sort=selectedOption.value;
+      this.shopParms.pageNumber=1;
       this.getProducts();
      }
   }
@@ -80,6 +90,7 @@ export class ShopComponent implements OnInit {
         console.log(result);
         this.shopParms.brands= result.selectedBrands;
         this.shopParms.types= result.selectedTypes;
+        this.shopParms.pageNumber=1;
         this.getProducts();
       }
     }
