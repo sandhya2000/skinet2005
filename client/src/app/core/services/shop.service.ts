@@ -17,18 +17,18 @@ export class ShopService {
   getProducts(shopParms: ShopParams){
     let params= new HttpParams();
 
-    if(shopParms.brands.length>0)
-    {
+    if(shopParms.brands.length>0) {
       params=params.append('brands', shopParms.brands.join(','))
     }
-    if(shopParms.types.length>0)
-      {
+    if(shopParms.types.length>0){
         params=params.append('types', shopParms.types.join(','))
       }
      
-     if(shopParms.sort)
-     {
+     if(shopParms.sort){
         params=params.append('sort',shopParms.sort);
+     }
+     if(shopParms.search){
+        params=params.append('search',shopParms.search)
      }
       params= params.append('pageSize', shopParms.pageSize)
       params=params.append('pageIndex', shopParms.pageNumber)
